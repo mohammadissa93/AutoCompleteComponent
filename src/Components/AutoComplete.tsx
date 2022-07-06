@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useRef } from "react";
 import "./AutoComplete.css";
 import {StateModel,AutoCompleteProps} from './Type';
 
@@ -8,10 +8,11 @@ const AutoComplete: React.FunctionComponent<AutoCompleteProps> = (
   ) => { 
   const [filteredData, setFilteredData] = useState<StateModel[]>([]);
   const [wordEntered, setWordEntered] = useState("");
+  const inputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
 
-  const handleFilter = (event: any) => {
-    const searchWord = event.target.value;
+  const handleFilter = () => {
+    const searchWord = inputRef.current.value;
     setWordEntered(searchWord);
     const newFilter =  props.data.filter((value: StateModel) => {
       return value.capital.toLowerCase().includes(searchWord.toLowerCase());
@@ -28,12 +29,14 @@ const AutoComplete: React.FunctionComponent<AutoCompleteProps> = (
     setFilteredData([]);
   }
   return (
+    
     <div className="search">
       <div className="searchInputs">
         <input
           type="text"
           placeholder={props.placeholder}
           value={wordEntered}
+          ref={inputRef}
           onChange={handleFilter}
         />
       </div>
@@ -41,11 +44,10 @@ const AutoComplete: React.FunctionComponent<AutoCompleteProps> = (
         <div className="dataResult">
           {filteredData.map((value, key) => {
             return (
-                <p className="dataResultParagraph"
-                    key={value.id}
-                    onClick={() => onDataResultClickHandler(value.capital)}
-                 >
-                {value.capital}
+                <p className="dataResultParagraph" key={value.id} onClick={() => onDataResultClickHandler(value.capital)}>
+                {value.capital.substring(0,value.capital.toLowerCase().indexOf(inputRef.current.value.toLowerCase()))}
+                <span className="highlight">{inputRef.current.value}</span>
+                {value.capital.substring(value.capital.toLowerCase().indexOf(inputRef.current.value.toLowerCase())+inputRef.current.value.length ,value.capital.length)}
                 </p>
             );
           })}
